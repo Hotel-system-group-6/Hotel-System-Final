@@ -16,21 +16,3 @@ databaseChangeLog:
             relativeToChangelogFile: true
             splitStatements: true
             stripComments: false
-
-  - changeSet:
-      id: hu12-dml-canonical-data
-      author: hotel-system
-      labels: "dml,inserts,postgresql,canonical"
-      comment: "HU-12: Calls stored procedures to load minimum canonical data required for system operation."
-      changes:
-        - sqlFile:
-            path: 002_dml_canonical.sql
-            relativeToChangelogFile: true
-            splitStatements: true
-            stripComments: false
-      rollback:
-        - sqlFile:
-            path: ../../05_rollbacks/02_dml/00_inserts/002_dml_canonical.rollback.sql
-            relativeToChangelogFile: true
-            splitStatements: true
-            stripComments: false
