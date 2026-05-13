@@ -5,9 +5,19 @@ DECLARE
   v_person_id     UUID := '00000000-0000-0000-0005-000000000001'::uuid;
   v_user_id       UUID := '00000000-0000-0000-0005-000000000002'::uuid;
   v_user_role_id  UUID := '00000000-0000-0000-0005-000000000003'::uuid;
-  v_admin_role_id UUID := '00000000-0000-0000-0001-000000000001'::uuid;
+  v_admin_role_id UUID;
 BEGIN
-  -- Insert person record for the admin user
+  -- Obtener el ID real del rol ADMIN
+  SELECT id INTO v_admin_role_id
+  FROM security.app_role
+  WHERE name = 'ADMIN';
+
+ 
+  IF v_admin_role_id IS NULL THEN
+    RAISE EXCEPTION 'ERROR: ADMIN role not found. sp_insert_roles must run first.';
+  END IF;
+
+  -- Insert person
   INSERT INTO security.person (id, document_type, document_number, name, last_name, email, status)
   VALUES (
     v_person_id,
@@ -20,8 +30,7 @@ BEGIN
   )
   ON CONFLICT (document_type, document_number) DO NOTHING;
 
-  -- Insert app_user linked to the person
-  -- password_hash corresponds to 'Admin1234!' hashed with bcrypt (cost 12)
+  -- Insert user
   INSERT INTO security.app_user (id, person_id, username, password_hash, blocked, status)
   VALUES (
     v_user_id,
@@ -33,7 +42,7 @@ BEGIN
   )
   ON CONFLICT (username) DO NOTHING;
 
-  -- Assign ADMIN role to the user
+  -- Assign role
   INSERT INTO security.app_user_role (id, app_user_id, role_id, status)
   VALUES (
     v_user_role_id,
